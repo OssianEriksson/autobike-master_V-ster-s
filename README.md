@@ -1,6 +1,6 @@
 # Autobike project
 
-This repository contains the code that is beeing used within the Autobike project on Chalmers. The main part of the code is made with the red bike in mind,
+This repository contains the code that is beeing used within the Autobike project on Chalmers. The main part of the code is made with the portable bike in mind,
 but it should work with other versions of the bike as well even if some minor adaptions might be necessary.
 
 For the report written in connection to this project, see: https://github.com/Hannnes1/Bachelor-thesis
