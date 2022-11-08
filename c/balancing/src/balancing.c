@@ -1,36 +1,6 @@
 #include <math.h>
 
-#include "balancing.h"
-
-/**
- * @param Ts Time step [s]
- * @param referenceRoll Reference roll [rad]
- * @param accelerationY Accelerometer Y value [m/s²]
- * @param accelerationZ Accelerometer Z value [m/s²]
- * @param rollRate Accelerometer roll rate (around X axis) [rad/s]
- * @param speed Approximative current speed of bike, e.g. reference speed [m/s]
- * @param steeringAngle Current sterring angle of bike [rad]
- * @param wheelBase Distance between front and rear wheel contact points [m]
- * @param gearRatio Gear ratio between motor and steering axis [1]
- * @param Kp PID proportionality constant [s⁻¹]
- * @param Ki PID integration constant [s⁻²]
- * @param Kd PID derivative constant [1]
- * 
- * @author Hannes Hultergård, Elliot Andersson
- */
-extern double stabilizeBike(double Ts, double referenceRoll, double accelerationY, double accelerationZ, double rollRate, double speed, double steeringAngle, double wheelbase, double gearRatio, double Kp, double Ki, double Kd)
-{
-    // Estimate current roll
-    double estimatedRoll = rollComplementaryFilter(Ts, accelerationY, accelerationZ, rollRate, speed, steeringAngle, wheelbase);
-
-    // Apply PID control to roll to find steering angle rate
-    double steeringRate = pid(Ts, referenceRoll, 0, estimatedRoll, rollRate, Kp, Ki, Kd);
-
-    // Send Steering Rate Reference value to steering motor controller
-    double steeringPWM = calculateSteeringPWM(steeringRate, gearRatio);
-
-    return steeringPWM;
-}
+#include "../../configuration/configuration.h"
 
 /**
  * Takes in the wanted angular velocity of the handlebar and return the required duty cycle for that velocity.
@@ -41,11 +11,11 @@ extern double stabilizeBike(double Ts, double referenceRoll, double acceleration
  * 
  * @author Hannes Hultergård, Elliot Andersson
  */
-double calculateSteeringPWM(double angularVelocity, double gearRatio)
+double calculateSteeringPWM(double angularVelocity)
 {
     // Convert from angular velocity (rad/s) of the handlebar,
     // to rpm of the motor.
-    double rpm = -angularVelocity * 30 / M_PI * gearRatio;
+    double rpm = -angularVelocity * 30 / M_PI * STEERING_GEAR_RATIO;
 
     // Convert from rpm to duty cycle,
     // 4000 is the maximum speed of the motor (configured in Escon Studio).
@@ -90,37 +60,23 @@ double pid(double Ts, double reference, double referenceRate, double value, doub
 }
 
 /**
- * Estimates roll using a complementary filter
- *
  * @param Ts Time step [s]
- * @param accelerationY Accelerometer Y value [m/s²]
- * @param accelerationZ Accelerometer Z value [m/s²]
- * @param rollRate Accelerometer roll rate (around X axis) [rad/s]
- * @param speed Approximative current speed of bike, e.g. reference speed [m/s]
- * @param steeringAngle Current sterring angle of bike [rad]
- * @param wheelBase Distance between front and rear wheel contact points [m]
- * @return Approximated roll angle (around X axis) [rad]
+ * @param referenceRoll Reference roll [rad]
+ * @param roll Current roll [rad]
+ * @param rollRate Curernt roll rate [rad/s]
+ * @param Kp PID proportionality constant [s⁻¹]
+ * @param Ki PID integration constant [s⁻²]
+ * @param Kd PID derivative constant [1]
  * 
- * @author Ossian Eriksson
+ * @author Hannes Hultergård, Elliot Andersson
  */
-double rollComplementaryFilter(double Ts, double accelerationY, double accelerationZ, double rollRate, double speed, double steeringAngle, double wheelbase)
+extern double stabilizeBike(double Ts, double referenceRoll, double roll, double rollRate, double Kp, double Ki, double Kd)
 {
-    static double lastEstimatedRoll = 0;
+    // Apply PID control to roll to find steering angle rate
+    double steeringRate = pid(Ts, referenceRoll, 0, roll, rollRate, Kp, Ki, Kd);
 
-    // From Umer's report. He used a time step of 0.04 seconds
-    const double C_ref = 0.985;
-    const double Ts_ref = 0.04;
+    // Send Steering Rate Reference value to steering motor controller
+    double steeringPWM = calculateSteeringPWM(steeringRate);
 
-    // Update Umer's C value to match our time step
-    double timeConstant = C_ref * Ts_ref / (1 - C_ref);
-    double C = timeConstant / (timeConstant + Ts);
-
-    // This formula is taken from a draft of Yixiao's paper. It is an approximation
-    double ac = speed * speed / wheelbase * tan(steeringAngle);
-    double accelerationRoll = atan2(accelerationY - ac * cos(lastEstimatedRoll), accelerationZ + ac * sin(lastEstimatedRoll));
-
-    // Estimated roll is LP filter applied to acceleration roll approximation + HP filter applied to roll rate roll approximation
-    double estimatedRoll = (1 - C) * accelerationRoll + C * (lastEstimatedRoll + Ts * rollRate);
-    lastEstimatedRoll = estimatedRoll;
-    return estimatedRoll;
+    return steeringPWM;
 }
