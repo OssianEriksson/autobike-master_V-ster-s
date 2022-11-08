@@ -105,4 +105,8 @@ extern void *stateEstimator(char *ret, double Ts, double latitude, double longit
 
         sprintf(ret, "%ld,%ld,%ld,%ld,%ld", X, Y, Psi, roll, rollRate);
     }
+    else
+    {
+        sprintf(ret, "");
+    }
 }
