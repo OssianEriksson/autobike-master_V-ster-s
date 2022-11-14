@@ -1,2 +1,3 @@
-#define WHEELBASE 1.2 // Really bad guess
+#define WHEELBASE 1.12 
 #define STEERING_GEAR_RATIO 111.0
+#define IMU_MOUNT_ANGLE 0.87
