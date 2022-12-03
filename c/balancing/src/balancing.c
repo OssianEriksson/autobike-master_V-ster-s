@@ -43,9 +43,9 @@ double pid(double Ts, double reference, double referenceRate, double value, doub
 
     const double windupGuard = 6;
 
-    double error = reference - value;
+    double error = value - reference;
     errorIntegral += Ts * error;
-    double errorRate = referenceRate - valueRate;
+    double errorRate = valueRate - referenceRate;
 
     if (errorIntegral < -windupGuard * Ts)
     {
