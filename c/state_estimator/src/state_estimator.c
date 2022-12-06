@@ -5,7 +5,6 @@
 #include "../../configuration/configuration.h"
 
 #define RADIUS_OF_THE_EARTH 6371000.0
-#define g 9.81
 
 /**
  * Estimates roll using a complementary filter
@@ -32,7 +31,7 @@ double rollComplementaryFilter(double Ts, double speed, double steeringAngle, do
     double timeConstant = C_ref * Ts_ref / (1 - C_ref);
     double C = timeConstant / (timeConstant + Ts);
 
-    double ac = speed * speed / (WHEELBASE * 9.81) * tan(steeringAngle) * sin(FORK_ANGLE);
+    double ac = speed * speed / WHEELBASE * tan(steeringAngle) * sin(FORK_ANGLE);
     double accelerationRoll = atan2(accY - ac * cos(roll), accZ + ac * sin(roll));
 
     // Estimated roll is LP filter applied to acceleration roll approximation + HP filter applied to roll rate roll approximation
