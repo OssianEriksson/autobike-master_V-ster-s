@@ -322,6 +322,12 @@ DirectoryIndex index.htm
 			<Item Name="libbalancing2.dll" Type="Document" URL="libbalancing2.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="liblateral_controller-dummy.dll" Type="Document" URL="liblateral_controller-dummy.dll">
+				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+			</Item>
+			<Item Name="libpart_ref_trajectory-dummy.dll" Type="Document" URL="libpart_ref_trajectory-dummy.dll">
+				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+			</Item>
 			<Item Name="libstate_estimator.dll" Type="Document" URL="libstate_estimator.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
