@@ -31,9 +31,8 @@ double rollComplementaryFilter(double Ts, double speed, double steeringAngle, do
     double timeConstant = C_ref * Ts_ref / (1 - C_ref);
     double C = timeConstant / (timeConstant + Ts);
 
-    // This formula is taken from a draft of Yixiao's paper. It is an approximation
-    double ac = speed * speed / WHEELBASE * tan(steeringAngle);
-    double accelerationRoll = atan2(accY - ac * cos(lastEstimatedRoll), accZ + ac * sin(lastEstimatedRoll));
+    double ac = speed * speed / WHEELBASE * tan(steeringAngle) * sin(FORK_ANGLE);
+    double accelerationRoll = atan2(accY - ac * cos(roll), accZ + ac * sin(roll));
 
     // Estimated roll is LP filter applied to acceleration roll approximation + HP filter applied to roll rate roll approximation
     double estimatedRoll = (1 - C) * accelerationRoll + C * (lastEstimatedRoll + Ts * gyroX);
@@ -41,6 +40,15 @@ double rollComplementaryFilter(double Ts, double speed, double steeringAngle, do
     return estimatedRoll;
 }
 
+/**
+ * Sets *value to *lastValue if *value is NaN.
+ * Otherwise *lastValue is set to *value.
+ * 
+ * @param value Current value
+ * @param lastValue The last known good value
+ * 
+ * @author Ossian Eriksson
+*/
 void useLastValueIfNaN(double *value, double *lastValue)
 {
     if (isnan(*value))
