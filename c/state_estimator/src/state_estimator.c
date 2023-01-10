@@ -32,7 +32,7 @@ double rollComplementaryFilter(double Ts, double speed, double steeringAngle, do
     double C = timeConstant / (timeConstant + Ts);
 
     double ac = speed * speed / WHEELBASE * tan(steeringAngle) * sin(FORK_ANGLE);
-    double accelerationRoll = atan2(accY - ac * cos(roll), accZ + ac * sin(roll));
+    double accelerationRoll = atan2(accY - ac * cos(lastEstimatedRoll), accZ + ac * sin(lastEstimatedRoll));
 
     // Estimated roll is LP filter applied to acceleration roll approximation + HP filter applied to roll rate roll approximation
     double estimatedRoll = (1 - C) * accelerationRoll + C * (lastEstimatedRoll + Ts * gyroX);
